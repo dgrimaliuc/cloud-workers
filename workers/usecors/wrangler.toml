@@ -1,0 +1,6 @@
+#More Info https://developers.cloudflare.com/workers/wrangler/configuration/
+name = "usecors"
+main = "./index.js"
+compatibility_date = "2024-04-05"
+[dev]
+port = 4000
