@@ -2,26 +2,28 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
-import { getCorsHandler } from '../../lib/handlers';
-import { readRequestBody } from '../../lib/utils';
+import { corsOptionsHeaders } from "../../lib/data";
+import { handleOptions, handleRequest } from "../../lib/handlers";
+import { makeAssertions } from "../../lib/utils";
 
 const handler = {
   async fetch(request, env, ctx) {
     try {
-      const { url } = getCorsHandler(request, env, ctx);
-      const reqBody = await readRequestBody(request);
-
-      return await fetch(url, {
-        method: request.method,
-        headers: request.headers,
-        body: reqBody,
-      });
+      if (request.method === "OPTIONS") {
+        // Handle CORS preflight requests
+        return await handleOptions(request);
+      } else {
+        const { url } = makeAssertions(request, env, ctx);
+        return await handleRequest(request, url);
+      }
     } catch (e) {
+      console.error("ERROR", e);
       const message = JSON.stringify({ error: e.message });
       return new Response(message, {
         status: e.status || 400,
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
+          ...corsOptionsHeaders,
         },
       });
     }

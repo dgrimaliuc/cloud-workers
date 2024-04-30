@@ -1,9 +1,9 @@
 const config = {
   dev: {
-    url: 'http://localhost:4000/',
+    url: "http://localhost:4000/",
   },
   prod: {
-    url: 'http://usecors.nodeapp.workers.dev/',
+    url: "https://usecors.nodeapp.workers.dev/",
   },
   debug: true,
 };
