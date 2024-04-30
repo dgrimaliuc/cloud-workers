@@ -23,10 +23,7 @@ describe("prod tests", () => {
         },
       }
     );
-    const responseBody = await re.text();
-
-    console.log("responseBody: ", responseBody);
-    // expect(responseBody).toContain("b-search__section_title");
+    expect(re.status).toBe(200);
   });
 
   test("prod get stream test", async () => {
