@@ -130,9 +130,13 @@ export async function createAdoption(request) {
     });
   }
 
-  const petsNonAvailable = petsToAdopt.some(pet => pet.status !== 'available');
+  const petsNonAvailable = petsToAdopt
+    .filter(pet => pet.status !== 'available')
+    .map(pet => {
+      return { id: pet.id, message: pet.status };
+    });
 
-  if (petsNonAvailable) {
+  if (petsNonAvailable.length) {
     adoption.status = 'rejected';
   }
   validPets = Object.values(validPets);
@@ -143,6 +147,8 @@ export async function createAdoption(request) {
       }
     });
     await savePets(location, validPets);
+  } else {
+    adoption.reasons = petsNonAvailable;
   }
 
   await saveAdoption(adoption);
