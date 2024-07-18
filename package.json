@@ -7,7 +7,9 @@
     "build": "echo \"Nothing to build\"",
     "login": "wrangler login",
     "cors:deploy": "npx wrangler deploy ./workers/usecors/index.js",
-    "cors:start": "npx wrangler dev ./workers/usecors/index.js"
+    "cors:start": "npx wrangler dev ./workers/usecors/index.js",
+    "pet:deploy": "npx wrangler deploy ./workers/pet-store/index.js",
+    "pet:start": "npx wrangler dev ./workers/pet-store/index.js"
   },
   "keywords": [],
   "author": "",
