@@ -50,9 +50,7 @@ export async function fetchPets(request) {
 export async function patchPet(request) {
   const newPet = await request.json();
   const petId = extractUUID(request.url);
-  console.log('petId', petId);
   newPet.id = petId;
-  console.log('newPet', newPet);
   const testRes = validateBody(newPet, ['id', 'location']);
   if (testRes) return testRes;
 
