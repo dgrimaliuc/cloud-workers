@@ -117,6 +117,9 @@ export async function createAdoption(request) {
 
   const testRes = validateBody(adoption, ['pets', 'location']);
   if (testRes) return testRes;
+  if (adoption.pets.length === 0) {
+    return buildResp({ body: { error: 'No pets selected' }, status: 400 });
+  }
 
   const location = adoption.location;
   let validPets = await getPets(location);
