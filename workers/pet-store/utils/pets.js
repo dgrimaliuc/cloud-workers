@@ -23,6 +23,22 @@ export async function getPets(location, status) {
   }
 }
 
+export async function getPet(id, location) {
+  const pathName = `${folder}/${location}/${id}`;
+  const pet = await get(pathName);
+
+  if (!pet) {
+    return {
+      error: {
+        body: { error: `Pet ${id} not found in ${location}` },
+        status: 404,
+      },
+    };
+  } else {
+    return pet;
+  }
+}
+
 export async function savePets(location, content) {
   const pathName = `${folder}/${location}`;
   for (const pet of content) {
@@ -36,6 +52,27 @@ async function savePet(pet) {
   return await patch(pathName, pet);
 }
 
+export async function fetchPet(request) {
+  const petId = extractUUID(request.url);
+  if (!petId) {
+    return buildResp({
+      body: { error: 'Pet ID is invalid' },
+      status: 400,
+    });
+  }
+  const { location } = getQueryParams(request.url);
+
+  if (!location) {
+    return buildResp({ body: { error: 'Missing location' }, status: 400 });
+  }
+  const pet = await getPet(petId, location);
+
+  if (pet.error) {
+    return buildResp(pet.error);
+  } else {
+    return buildResp({ body: pet });
+  }
+}
 export async function fetchPets(request) {
   const { location, status } = getQueryParams(request.url);
 

@@ -3,6 +3,7 @@ import {
   createAdoption,
   deleteAdoption,
   deleteAdoptions,
+  fetchAdoption,
   fetchAdoptions,
   patchAdoption,
 } from '../utils/adoptions';
@@ -10,7 +11,12 @@ import {
 export default async function handler(request) {
   switch (request.method) {
     case 'GET':
-      return await fetchAdoptions(request);
+      if (request.url.includes('/adoptions?')) {
+        return await fetchAdoptions(request);
+      } else {
+        return await fetchAdoption(request);
+      }
+
     case 'POST':
       return await createAdoption(request);
     case 'PATCH':

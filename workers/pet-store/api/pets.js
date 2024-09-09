@@ -3,6 +3,7 @@ import {
   createPet,
   deletePet,
   deletePets,
+  fetchPet,
   fetchPets,
   patchPet,
 } from '../utils/pets';
@@ -10,7 +11,10 @@ import {
 export default async function handler(request) {
   switch (request.method) {
     case 'GET':
-      return await fetchPets(request);
+      if (request.url.includes('/pets?')) {
+        return await fetchPets(request);
+      } else return await fetchPet(request);
+
     case 'POST':
       return await createPet(request);
     case 'PATCH':
