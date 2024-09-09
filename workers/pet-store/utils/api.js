@@ -18,22 +18,34 @@ export function getQueryParams(url) {
 
 export function filterByStatus(items, status) {
   let statuses = status.split('&');
-  return items.filter(item =>
-    statuses.every(s => {
+  return items.filter((item) =>
+    statuses.every((s) => {
       if (s.startsWith('!')) {
         return item.status !== s.slice(1);
       } else {
         return item.status === s;
       }
-    }),
+    })
   );
 }
 
+export function accumulateByStatus(object, status) {
+  return Object.values(object).reduce((acc, item) => {
+    if (item.status === status) {
+      acc[item.id] = item;
+    }
+    return acc;
+  }, []);
+}
+
 export function validateBody(body, props) {
-  const errors = props.filter(prop => !body[prop]);
+  const errors = props.filter((prop) => !body[prop]);
 
   if (errors.length > 0) {
-    return buildResp({ body: { error: 'Props are required: ' + errors }, status: 400 });
+    return buildResp({
+      body: { error: 'Props are required: ' + errors },
+      status: 400,
+    });
   }
 
   return null;

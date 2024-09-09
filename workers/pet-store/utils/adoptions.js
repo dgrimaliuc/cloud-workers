@@ -1,4 +1,10 @@
-import { extractUUID, filterByStatus, getQueryParams, validateBody } from './request';
+import {
+  accumulateByStatus,
+  extractUUID,
+  filterByStatus,
+  getQueryParams,
+  validateBody,
+} from './api';
 
 import { getPets, savePets } from './pets';
 import { buildResp } from '../../../lib/response';
@@ -14,14 +20,26 @@ const folder = 'articles/adoptions';
 // rejected -> END
 // denied -> END
 
-async function getAdoptions(location) {
+export async function getAdoptions(location, status) {
   const pathName = `${folder}/${location}`;
   const adoptions = await get(pathName);
 
   if (!adoptions) {
     return {};
   } else {
-    return adoptions;
+    return status ? accumulateByStatus(adoptions, status) : adoptions;
+  }
+}
+export async function getAdoption(id, location) {
+  const pathName = `${folder}/${location}/${id}`;
+  const adoption = await get(pathName);
+
+  if (!adoption) {
+    return {
+      error: { body: { error: 'Adoption not found' }, status: 404 },
+    };
+  } else {
+    return adoption;
   }
 }
 
@@ -65,7 +83,10 @@ export async function patchAdoption(request) {
     return buildResp({ body: { error: 'Adoption not found' }, status: 404 });
   }
 
-  if (newAdoption.status && ['denied', 'approved'].includes(newAdoption.status)) {
+  if (
+    newAdoption.status &&
+    ['denied', 'approved'].includes(newAdoption.status)
+  ) {
     oldAdoption.status = newAdoption.status;
   } else {
     return buildResp({
@@ -76,13 +97,13 @@ export async function patchAdoption(request) {
 
   const pets = Object.values(await getPets(location));
   if (newAdoption.status === 'approved') {
-    pets.forEach(pet => {
+    pets.forEach((pet) => {
       if (oldAdoption.pets.includes(pet.id)) {
         pet.status = 'adopted';
       }
     });
   } else if (newAdoption.status === 'denied') {
-    pets.forEach(pet => {
+    pets.forEach((pet) => {
       if (oldAdoption.pets.includes(pet.id)) {
         pet.status = 'available';
       }
@@ -96,18 +117,58 @@ export async function patchAdoption(request) {
 export async function deleteAdoptions(request) {
   const { location } = getQueryParams(request.url);
   if (!location) {
-    return buildResp({ body: { error: 'Location is required' } });
+    return buildResp({ body: { error: 'Location is required' }, status: 400 });
   }
 
   const pathName = `${folder}/${location}`;
-  const pets = Object.values(await getAdoptions(location)).flatMap(adoption => adoption.pets);
-  const validPets = await getPets(location);
-  pets.forEach(pet => {
-    validPets[pet].status = 'available';
-  });
-  await savePets(location, validPets);
+  const affectedPets = Object.values(await getAdoptions(location)).flatMap(
+    (adoption) => adoption.pets
+  );
+
+  const onHoldPets = await getPets(location, 'onhold');
+
   await del(pathName);
+  if (Object.values(onHoldPets).length > 0) {
+    affectedPets.forEach((pet) => {
+      if (onHoldPets[pet]) {
+        onHoldPets[pet].status = 'available';
+      }
+    });
+    await savePets(location, Object.values(onHoldPets));
+  }
   return buildResp({ body: { message: 'Removed' } });
+}
+
+export async function deleteAdoption(request) {
+  const { location } = getQueryParams(request.url);
+  if (!location) {
+    return buildResp({ body: { error: 'Location is required' }, status: 400 });
+  }
+
+  const adoptionId = extractUUID(request.url);
+  if (!adoptionId) {
+    return buildResp({
+      body: { error: 'Adoption ID is invalid' },
+      status: 400,
+    });
+  }
+
+  const adoptionToDelete = await getAdoption(adoptionId, location);
+
+  if (adoptionToDelete.error) {
+    return buildResp(adoptionToDelete.error);
+  }
+
+  const onHoldPets = Object.values(await getPets(location)).filter((pet) =>
+    adoptionToDelete.pets.includes(pet.id)
+  );
+
+  await del(`${folder}/${location}/${adoptionId}`);
+  if (onHoldPets.length > 0) {
+    onHoldPets.forEach((pet) => (pet.status = 'available'));
+    await savePets(location, onHoldPets);
+  }
+  return buildResp({ body: { message: 'Adoption removed: ' + adoptionId } });
 }
 
 export async function createAdoption(request) {
@@ -123,8 +184,8 @@ export async function createAdoption(request) {
 
   const location = adoption.location;
   let validPets = await getPets(location);
-  const invalidPets = adoption.pets.filter(id => !validPets[id]);
-  const petsToAdopt = adoption.pets.map(id => validPets[id]);
+  const invalidPets = adoption.pets.filter((id) => !validPets[id]);
+  const petsToAdopt = adoption.pets.map((id) => validPets[id]);
 
   if (invalidPets.length) {
     return buildResp({
@@ -134,8 +195,8 @@ export async function createAdoption(request) {
   }
 
   const petsNonAvailable = petsToAdopt
-    .filter(pet => pet.status !== 'available')
-    .map(pet => {
+    .filter((pet) => pet.status !== 'available')
+    .map((pet) => {
       return { id: pet.id, message: pet.status };
     });
 
@@ -144,7 +205,7 @@ export async function createAdoption(request) {
   }
   validPets = Object.values(validPets);
   if (adoption.status !== 'rejected') {
-    validPets.forEach(pet => {
+    validPets.forEach((pet) => {
       if (adoption.pets.includes(pet.id)) {
         pet.status = 'onhold';
       }

@@ -1,5 +1,11 @@
 import { corsOptionsHeaders } from '../../../lib/data';
-import { createAdoption, deleteAdoptions, fetchAdoptions, patchAdoption } from '../utils/adoptions';
+import {
+  createAdoption,
+  deleteAdoption,
+  deleteAdoptions,
+  fetchAdoptions,
+  patchAdoption,
+} from '../utils/adoptions';
 
 export default async function handler(request) {
   switch (request.method) {
@@ -10,7 +16,11 @@ export default async function handler(request) {
     case 'PATCH':
       return await patchAdoption(request);
     case 'DELETE':
-      return await deleteAdoptions(request);
+      if (request.url.includes('/adoptions?')) {
+        return await deleteAdoptions(request);
+      } else {
+        return await deleteAdoption(request);
+      }
     case 'OPTIONS':
       return new Response(null, {
         status: 204,
