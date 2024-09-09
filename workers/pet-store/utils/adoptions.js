@@ -36,7 +36,10 @@ export async function getAdoption(id, location) {
 
   if (!adoption) {
     return {
-      error: { body: { error: 'Adoption not found' }, status: 404 },
+      error: {
+        body: { error: `Adoption ${id} not found in ${location}` },
+        status: 404,
+      },
     };
   } else {
     return adoption;
@@ -46,6 +49,27 @@ export async function getAdoption(id, location) {
 async function saveAdoption(adoption) {
   const pathName = `${folder}/${adoption.location}`;
   return await patch(pathName, adoption);
+}
+
+export async function fetchAdoption(request) {
+  const adoptionId = extractUUID(request.url);
+  if (!adoptionId) {
+    return buildResp({
+      body: { error: 'Adoption ID is invalid' },
+      status: 400,
+    });
+  }
+  const { location } = getQueryParams(request.url);
+
+  if (!location) {
+    return buildResp({ body: { error: 'Missing location' }, status: 400 });
+  }
+  const adoption = await getAdoption(adoptionId, location);
+  if (adoption.error) {
+    return buildResp(adoption.error);
+  } else {
+    return buildResp({ body: adoption });
+  }
 }
 
 export async function fetchAdoptions(request) {
