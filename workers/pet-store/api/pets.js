@@ -1,5 +1,11 @@
 import { corsOptionsHeaders } from '../../../lib/data';
-import { createPet, deletePets, fetchPets, patchPet } from '../utils/pets';
+import {
+  createPet,
+  deletePet,
+  deletePets,
+  fetchPets,
+  patchPet,
+} from '../utils/pets';
 
 export default async function handler(request) {
   switch (request.method) {
@@ -10,7 +16,9 @@ export default async function handler(request) {
     case 'PATCH':
       return await patchPet(request);
     case 'DELETE':
-      return await deletePets(request);
+      if (request.url.includes('/pets?')) {
+        return await deletePets(request);
+      } else return await deletePet(request);
     case 'OPTIONS':
       return new Response(null, {
         status: 200,

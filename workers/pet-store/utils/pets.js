@@ -1,19 +1,25 @@
-// import { put, list } from '@vercel/blob';
-import { extractUUID, filterByStatus, getQueryParams, validateBody } from './request';
+import {
+  accumulateByStatus,
+  extractUUID,
+  filterByStatus,
+  getQueryParams,
+  validateBody,
+} from './api';
 import { buildResp } from '../../../lib/response';
 import { get, patch, del } from '../../../lib/firebase';
+import { deleteAdoptions, getAdoptions } from './adoptions';
 
 const { v4: uuid } = require('uuid');
 const folder = 'articles/pets';
 
-export async function getPets(location) {
+export async function getPets(location, status) {
   const pathName = `${folder}/${location}`;
   const pets = await get(pathName);
 
   if (!pets) {
     return {};
   } else {
-    return pets;
+    return status ? accumulateByStatus(pets, status) : pets;
   }
 }
 
@@ -76,6 +82,31 @@ export async function patchPet(request) {
   return buildResp({ body: oldPet });
 }
 
+export async function deletePet(request) {
+  const { location } = getQueryParams(request.url);
+  if (!location) {
+    return buildResp({ body: { error: 'Location is required' }, status: 400 });
+  }
+
+  const petId = extractUUID(request.url);
+  if (!petId) {
+    return buildResp({ body: { error: 'Pet ID is invalid' }, status: 400 });
+  }
+
+  for (let adoption of Object.values(await getAdoptions(location))) {
+    if (adoption.status === 'available' && adoption.pets.includes(petId)) {
+      return buildResp({
+        body: { error: `Pet '${petId}' is onhold` },
+        status: 400,
+      });
+    }
+  }
+  const pathName = `${folder}/${location}/${petId}`;
+  await del(pathName);
+
+  return buildResp({ body: { message: 'Pet removed: ' + petId } });
+}
+
 export async function deletePets(request) {
   const { location } = getQueryParams(request.url);
   if (!location) {
@@ -83,6 +114,7 @@ export async function deletePets(request) {
   }
   const pathName = `${folder}/${location}`;
   await del(pathName);
+  await deleteAdoptions(request);
   return buildResp({ body: { message: 'Removed' } });
 }
 
@@ -95,5 +127,5 @@ export async function createPet(request) {
   if (testRes) return testRes;
 
   await savePet(pet);
-  return buildResp({ body: pet });
+  return buildResp({ body: pet, status: 201 });
 }
