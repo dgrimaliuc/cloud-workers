@@ -6,10 +6,13 @@
   "scripts": {
     "build": "echo \"Nothing to build\"",
     "login": "wrangler login",
-    "cors:deploy": "npx wrangler deploy ./workers/usecors/index.js",
+    "neon:start:dev": "export NODE_ENV=DEV; npx wrangler dev ./workers/neonstream/index.js",
+    "neon:start": "export NODE_ENV=PROD; npx wrangler dev ./workers/neonstream/index.js",
+    "neon:deploy": "npx wrangler deploy ./workers/neonstream/index.js",
     "cors:start": "npx wrangler dev ./workers/usecors/index.js",
-    "pet:deploy": "npx wrangler deploy ./workers/pet-store/index.js",
-    "pet:start": "npx wrangler dev ./workers/pet-store/index.js"
+    "cors:deploy": "npx wrangler deploy ./workers/usecors/index.js",
+    "pet:start": "npx wrangler dev ./workers/pet-store/index.js",
+    "pet:deploy": "npx wrangler deploy ./workers/pet-store/index.js"
   },
   "keywords": [],
   "author": "",
