@@ -7,9 +7,11 @@ import { buildResp } from '../../lib/response';
 import { parseURL } from '../../lib/utils';
 import { default as petsHandler } from './api/pets';
 import { default as adoptionsHandler } from './api/adoptions';
+import { initializeFirebase } from '../../lib/firebase';
 
 const handler = {
   async handleRequest(request, env, ctx) {
+    initializeFirebase(env);
     if (request.method === 'OPTIONS') {
       // Handle CORS preflight requests
       console.log('Handling CORS preflight request');
