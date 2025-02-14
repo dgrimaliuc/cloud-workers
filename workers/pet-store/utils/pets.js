@@ -152,7 +152,7 @@ export async function deletePets(request) {
   const pathName = `${folder}/${location}`;
   await del(pathName);
   await deleteAdoptions(request);
-  return buildResp({ body: { message: 'Removed' } });
+  return buildResp({ body: { message: `Removed all pets from ${location}` } });
 }
 
 export async function createPet(request) {
