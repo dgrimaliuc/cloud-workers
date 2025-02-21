@@ -1,7 +1,8 @@
-import { decryptToken, logIn } from '../../../lib';
+import { logIn } from '../../../lib';
 import { getJsonBody, handlerWrapper } from '../../../lib/handlers';
 import { badRequest, forbidden, notAllowed } from '../../../lib/response';
 import { validateBody } from '../../pet-store/utils/api';
+import { handleBasicAuth } from '../utils/user';
 import {
   addToWatchlist,
   getWatchlist,
@@ -13,13 +14,8 @@ export default async function watchlistHandler(request, env, ctx) {
   return await handlerWrapper(async () => {
     const body = await getJsonBody(request);
     // Handle Basic Auth
-    if (request.headers.get('authorization')) {
-      const token = request.headers.get('authorization');
-      const user = decryptToken(token);
-      if (user.failure) return forbidden(user.error);
-      body.email = user.email;
-      body.password = user.password;
-    }
+    const authTest = handleBasicAuth(request, body);
+    if (authTest) return authTest;
 
     const testRes = validateBody(body, ['email', 'password']);
     if (testRes) return forbidden('Not Authorized');

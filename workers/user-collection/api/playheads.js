@@ -8,18 +8,14 @@ import {
   removePlayheads,
   removeAllPlayheads,
 } from '../utils/playheads';
+import { handleBasicAuth } from '../utils/user';
 
 export default async function playheadsHandler(request, env, ctx) {
   return await handlerWrapper(async () => {
     const body = await getJsonBody(request);
     // Handle Basic Auth
-    if (request.headers.get('authorization')) {
-      const token = request.headers.get('authorization');
-      const user = decryptToken(token);
-      if (user.failure) return forbidden(user.error);
-      body.email = user.email;
-      body.password = user.password;
-    }
+    const authTest = handleBasicAuth(request, body);
+    if (authTest) return authTest;
 
     const testRes = validateBody(body, ['email', 'password']);
     if (testRes) return forbidden('Not Authorized');
