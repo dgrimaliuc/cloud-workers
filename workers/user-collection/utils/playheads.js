@@ -87,5 +87,5 @@ export async function removePlayheads(body, user) {
 
 export async function removeAllPlayheads(user) {
   await del(`${key}/${user.localId}`);
-  return allOk({ message: 'Playheads deleted' });
+  return allOk({ message: `Playheads of ${user.email} deleted` });
 }

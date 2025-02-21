@@ -71,5 +71,5 @@ export async function removeFromWatchlist(body, user) {
 
 export async function deleteWatchlist(user) {
   await del(`${key}/${user.localId}`);
-  return allOk({ message: 'Watchlist deleted' });
+  return allOk({ message: `Watchlist of ${user.email} deleted` });
 }
