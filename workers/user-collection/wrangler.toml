@@ -1,0 +1,25 @@
+name = "user-collection"
+main = "./index.js"
+compatibility_date = "2024-07-16"
+
+[dev]
+port = 4445
+
+
+[env.dev]
+    FIREBASE_DB = "https://stream-user-collection-default-rtdb.europe-west1.firebasedatabase.app"
+    FIREBASE_AUTH_KEY = "AIzaSyCdI9pPDUufTKiwDcb0QM3fLV6acKxcmAI"
+  
+
+[env.prod]
+    FIREBASE_DB = "https://stream-user-collection-default-rtdb.europe-west1.firebasedatabase.app"
+    FIREBASE_AUTH_KEY = "AIzaSyCdI9pPDUufTKiwDcb0QM3fLV6acKxcmAI"
+    
+
+# Default vars for general environment if no specific environment is selected
+[vars]
+  FIREBASE_DB = "https://stream-user-collection-default-rtdb.europe-west1.firebasedatabase.app"
+  FIREBASE_AUTH_KEY = "AIzaSyCdI9pPDUufTKiwDcb0QM3fLV6acKxcmAI"
+  TMDB_TOKEN= "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3ZWQ0N2FkMmYxYWMxNTIwMWRkOTZjOTkzNzFjYjIyMCIsIm5iZiI6MTczOTk3ODA3MC4yNTksInN1YiI6IjY3YjVmNTU2NjBiMThhNTY5OGRmZjI3OSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.UTRy-E8L4nQw2WGr-LGZygCRNS7CC5odKv7bj-PVWw8"
+  TMDB_KEY = "7ed47ad2f1ac15201dd96c99371cb220"
+  

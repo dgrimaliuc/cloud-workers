@@ -4,12 +4,13 @@
   "description": "Cloudflare Workers",
   "main": "index.js",
   "scripts": {
-    "build": "echo \"Nothing to build\"",
     "login": "wrangler login",
     "cors:start": "npx wrangler dev ./workers/usecors/index.js",
     "cors:deploy": "npx wrangler deploy ./workers/usecors/index.js",
     "pet:start": "npx wrangler dev ./workers/pet-store/index.js",
-    "pet:deploy": "npx wrangler deploy ./workers/pet-store/index.js"
+    "pet:deploy": "npx wrangler deploy ./workers/pet-store/index.js",
+    "user-collection:start": "npx wrangler dev ./workers/user-collection/index.js",
+    "user-collection:deploy": "npx wrangler deploy ./workers/user-collection/index.js"
   },
   "keywords": [],
   "author": "",

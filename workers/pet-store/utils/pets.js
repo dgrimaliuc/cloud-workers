@@ -6,7 +6,7 @@ import {
   validateBody,
 } from './api';
 import { buildResp } from '../../../lib/response';
-import { get, patch, del } from '../../../lib/firebase';
+import { get, patch, del } from '../../../lib/database';
 import { deleteAdoptions, getAdoptions } from './adoptions';
 
 const { v4: uuid } = require('uuid');
