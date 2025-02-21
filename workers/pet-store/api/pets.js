@@ -1,4 +1,5 @@
-import { corsOptionsHeaders } from '../../../lib/data';
+import { handlerWrapper } from '../../../lib/handlers';
+import { buildResp, notAllowed } from '../../../lib/response';
 import {
   createPet,
   deletePet,
@@ -9,7 +10,7 @@ import {
 } from '../utils/pets';
 
 export default async function handler(request) {
-  try {
+  return await handlerWrapper(async () => {
     switch (request.method) {
       case 'GET':
         if (request.url.includes('/pets?')) {
@@ -25,20 +26,9 @@ export default async function handler(request) {
           return await deletePets(request);
         } else return await deletePet(request);
       case 'OPTIONS':
-        return new Response(null, {
-          status: 200,
-          headers: {
-            ...corsOptionsHeaders,
-          },
-        });
+        return buildResp({ body: {} });
       default:
-        return new Response('Method not allowed', {
-          status: 405,
-        });
+        return notAllowed();
     }
-  } catch (e) {
-    return new Response(e.message, {
-      status: 400,
-    });
-  }
+  });
 }

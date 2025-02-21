@@ -3,31 +3,34 @@
  */
 
 import { handleOptions } from '../../lib/handlers';
-import { buildResp } from '../../lib/response';
-import { default as petsHandler } from './api/pets';
-import { default as adoptionsHandler } from './api/adoptions';
-import { initializeDB } from '../../lib';
+import { badRequest, buildResp } from '../../lib/response';
+import { default as userHandler } from './api/user';
+import { default as playheadsHandler } from './api/playheads';
+import { default as watchlistHandler } from './api/watchlist';
+import { initializeDB, initAuth } from '../../lib';
+import { initMDB } from '../../lib/theMovieDatabase';
 
 const handler = {
   async handleRequest(request, env, ctx) {
+    initAuth(env);
+    initMDB(env);
     initializeDB(env);
     if (request.method === 'OPTIONS') {
       return await handleOptions(request);
     } else {
       const { pathname } = new URL(request.url);
       switch (true) {
-        case pathname.startsWith('/api/pets'):
-          return await petsHandler(request, env, ctx);
-        case pathname.startsWith('/api/adoptions'):
-          return await adoptionsHandler(request, env, ctx);
+        case pathname.startsWith('/user'):
+          return await userHandler(request, env, ctx);
+        case pathname === '/watchlist':
+          return await watchlistHandler(request, env, ctx);
+        case pathname.startsWith('/playheads'):
+          return await playheadsHandler(request, env, ctx);
         default:
-          return new Response('Endpoint unknown: ' + pathname, {
-            status: 400,
-          });
+          return badRequest('Endpoint unknown: ' + pathname);
       }
     }
   },
-
   async fetch(request, env, ctx) {
     try {
       return await this.handleRequest(request, env, ctx);

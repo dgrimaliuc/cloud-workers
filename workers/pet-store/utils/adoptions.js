@@ -8,7 +8,7 @@ import {
 
 import { getPets, savePets } from './pets';
 import { buildResp } from '../../../lib/response';
-import { del, get, patch } from '../../../lib/firebase';
+import { del, get, patch } from '../../../lib/database';
 const { v4: uuid } = require('uuid');
 
 const folder = 'articles/adoptions';
@@ -160,7 +160,9 @@ export async function deleteAdoptions(request) {
     });
     await savePets(location, Object.values(onHoldPets));
   }
-  return buildResp({ body: { message: 'Removed' } });
+  return buildResp({
+    body: { message: `Removed all adoptions from ${location}` },
+  });
 }
 
 export async function deleteAdoption(request) {

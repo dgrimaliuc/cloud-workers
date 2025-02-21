@@ -1,4 +1,5 @@
 import { corsOptionsHeaders } from '../../../lib/data';
+import { handlerWrapper } from '../../../lib/handlers';
 import {
   createAdoption,
   deleteAdoption,
@@ -9,7 +10,7 @@ import {
 } from '../utils/adoptions';
 
 export default async function handler(request) {
-  try {
+  return await handlerWrapper(async () => {
     switch (request.method) {
       case 'GET':
         if (request.url.includes('/adoptions?')) {
@@ -40,9 +41,5 @@ export default async function handler(request) {
           status: 405,
         });
     }
-  } catch (e) {
-    return new Response(e.message, {
-      status: 400,
-    });
-  }
+  });
 }
