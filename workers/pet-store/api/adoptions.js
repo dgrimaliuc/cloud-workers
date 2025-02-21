@@ -1,5 +1,6 @@
 import { corsOptionsHeaders } from '../../../lib/data';
 import { handlerWrapper } from '../../../lib/handlers';
+import { notAllowed } from '../../../lib/response';
 import {
   createAdoption,
   deleteAdoption,
@@ -37,9 +38,7 @@ export default async function handler(request) {
           },
         });
       default:
-        return new Response('Method not allowed', {
-          status: 405,
-        });
+        return notAllowed();
     }
   });
 }

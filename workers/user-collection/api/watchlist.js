@@ -1,6 +1,6 @@
 import { decryptToken, logIn } from '../../../lib';
 import { getJsonBody, handlerWrapper } from '../../../lib/handlers';
-import { badRequest, forbidden } from '../../../lib/response';
+import { badRequest, forbidden, notAllowed } from '../../../lib/response';
 import { validateBody } from '../../pet-store/utils/api';
 import {
   addToWatchlist,
@@ -10,7 +10,6 @@ import {
 } from '../utils/watchlist';
 
 export default async function watchlistHandler(request, env, ctx) {
-  const { pathname } = new URL(request.url);
   return await handlerWrapper(async () => {
     const body = await getJsonBody(request);
     // Handle Basic Auth
@@ -28,6 +27,12 @@ export default async function watchlistHandler(request, env, ctx) {
     if (['POST', 'PATCH'].includes(request.method)) {
       const bodyTest = validateBody(body, ['id', 'mediaType']);
       if (bodyTest) return bodyTest;
+
+      if (!['tv', 'movie'].includes(body.mediaType)) {
+        return badRequest(
+          'Invalid mediaType: ' + body.mediaType + ". Must be 'tv' or 'movie'"
+        );
+      }
     }
 
     const logInResponse = await logIn(body);
@@ -48,9 +53,7 @@ export default async function watchlistHandler(request, env, ctx) {
         return await deleteWatchlist(user);
 
       default:
-        return new Response('Method not allowed', {
-          status: 405,
-        });
+        return notAllowed();
     }
   });
 }

@@ -43,7 +43,12 @@ export async function addToWatchlist(body, user) {
     id: mdbItem.id,
     title: mdbItem.title || mdbItem.name,
     tagline: mdbItem.tagline,
-    backdrop_path: mdbItem.backdrop_path,
+    image:
+      mdbItem.backdrop_path || mdbItem.poster_path
+        ? `https://image.tmdb.org/t/p/w780${
+            mdbItem.backdrop_path || mdbItem.poster_path
+          }`
+        : '',
     mediaType: body.mediaType,
   });
 

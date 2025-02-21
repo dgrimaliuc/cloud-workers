@@ -43,7 +43,7 @@ export function validateBody(body, props) {
 
   if (errors.length > 0) {
     return buildResp({
-      body: { error: 'Missing required fields: ' + errors },
+      body: { error: 'Missing required fields: ' + errors.join(', ') },
       status: 400,
     });
   }
